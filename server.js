@@ -225,6 +225,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { i } = require("framer-motion/client");
 
 const app = express();
 const PORT = 3000;
@@ -245,6 +246,20 @@ app.get("/", (_req, res) => {
 // =========================
 app.post("/register", async (req, res) => {
   // Implement logic here based on the TODO 1.
+  const { email, password } = req.body || {};
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
+  const existing = users.find((u) => u.email === email);
+  if (existing) {
+    return res.status(400).json({ error: "User already exists" });
+  }
+  const hashedPassword = await bcrypt.hash(password, 10);
+  users.push({ email, password: hashedPassword });
+  res.status(201).json({ message: "User registered!" });
+  console.error("Register error:", err);
+  return res.status(500).json({ error: "Server error during register" });
+
 });
 
 // =========================
